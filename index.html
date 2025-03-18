@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Audio Recorder</title>
+</head>
+<body>
+    <h2>Live Audio Streaming</h2>
+    <button onclick="startRecording()">Start Recording</button>
+    <button onclick="stopRecording()">Stop Recording</button>
+    <audio id="audioPlayer" controls></audio>
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+
+        async function startRecording() {
+            let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+            
+            mediaRecorder.onstop = async () => {
+                let audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                let formData = new FormData();
+                formData.append("file", audioBlob, "audio.wav");
+
+                await fetch("http://your-server-ip/upload_audio", { 
+                    method: "POST", 
+                    body: formData 
+                });
+
+                let audioURL = URL.createObjectURL(audioBlob);
+                document.getElementById("audioPlayer").src = audioURL;
+            };
+
+            mediaRecorder.start();
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+        }
+    </script>
+</body>
+</html>
