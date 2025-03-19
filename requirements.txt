@@ -1,0 +1,13 @@
+flask
+librosa
+numpy
+pandas
+speechrecognition
+pyaudio
+wave
+parselmouth
+joblib
+scipy
+scikit-learn
+imbalanced-learn
+gunicorn
