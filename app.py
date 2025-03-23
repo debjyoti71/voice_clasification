@@ -1,26 +1,21 @@
-from flask import Flask, request
-import wave
+from flask import Flask, request, send_file
 import os
 
 app = Flask(__name__)
 
-@app.route('/')
-def home():
-    return "Flask API is running on Render!"
+AUDIO_FILE = "latest_audio.wav"
 
-@app.route('/upload_audio', methods=['POST'])
+@app.route('/upload', methods=['POST'])
 def upload_audio():
-    audio_data = request.data
-    audio_file_path = "recorded_audio.wav"
+    with open(AUDIO_FILE, 'wb') as f:
+        f.write(request.data)
+    return "Audio Saved", 200
 
-    with wave.open(audio_file_path, "wb") as wf:
-        wf.setnchannels(1)  # Mono
-        wf.setsampwidth(2)  # 16-bit
-        wf.setframerate(16000)
-        wf.writeframes(audio_data)
-
-    return "Audio received", 200
+@app.route('/latest-audio', methods=['GET'])
+def get_audio():
+    if os.path.exists(AUDIO_FILE):
+        return send_file(AUDIO_FILE, mimetype="audio/wav")
+    return "No audio found", 404
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))  # Render requires PORT env
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=10000)  # Use Render's assigned port

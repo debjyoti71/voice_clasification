@@ -3,45 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Audio Recorder</title>
+    <title>ESP32 Audio Recorder</title>
 </head>
 <body>
-    <h2>Live Audio Streaming</h2>
-    <button onclick="startRecording()">Start Recording</button>
-    <button onclick="stopRecording()">Stop Recording</button>
+    <h1>ESP32 Audio Recorder</h1>
+    <button onclick="playAudio()">Play Last Recorded Audio</button>
     <audio id="audioPlayer" controls></audio>
+
     <script>
-        let mediaRecorder;
-        let audioChunks = [];
+        async function fetchAudio() {
+            const response = await fetch('/latest-audio');
+            const blob = await response.blob();
 
-        async function startRecording() {
-            let stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            
-            mediaRecorder.ondataavailable = event => {
-                audioChunks.push(event.data);
-            };
-            
-            mediaRecorder.onstop = async () => {
-                let audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-                let formData = new FormData();
-                formData.append("file", audioBlob, "audio.wav");
+            // Save in Local Storage (IndexedDB recommended for large files)
+            localStorage.setItem('audioBlob', URL.createObjectURL(blob));
 
-                await fetch("http://your-server-ip/upload_audio", { 
-                    method: "POST", 
-                    body: formData 
-                });
-
-                let audioURL = URL.createObjectURL(audioBlob);
-                document.getElementById("audioPlayer").src = audioURL;
-            };
-
-            mediaRecorder.start();
+            document.getElementById('audioPlayer').src = localStorage.getItem('audioBlob');
         }
 
-        function stopRecording() {
-            mediaRecorder.stop();
+        function playAudio() {
+            let audioSrc = localStorage.getItem('audioBlob');
+            if (audioSrc) {
+                document.getElementById('audioPlayer').src = audioSrc;
+                document.getElementById('audioPlayer').play();
+            } else {
+                alert("No audio recorded yet!");
+            }
         }
+
+        fetchAudio();
     </script>
 </body>
 </html>
