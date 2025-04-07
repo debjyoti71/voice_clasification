@@ -20,6 +20,8 @@ from imblearn.over_sampling import ADASYN
 from scipy.spatial.distance import cityblock
 from scipy.stats import pearsonr
 
+SENTENCE = "open the door"
+
 MODEL_FILE = "voice_model.pkl"
 SCALER_FILE = "scaler.pkl"
 ENCODER_FILE = "encoder.pkl"
@@ -240,7 +242,7 @@ def new_input():
 
 def predict_voice():
     """Predicts a user's voice from an audio sample."""
-    sentence = "open the door"
+    sentence = SENTENCE
     file_path = "predictvoice.wav"
     record_audio(file_path)
     l = "unknown"
@@ -258,6 +260,7 @@ def predict_voice():
         print("Prediction:", prediction if prediction else "No match found.")
         if transcribed_text is not None:
             print("Sentence Match:", transcribed_text.lower() == sentence.lower())
+            print("you said :", transcribed_text)
 
 def feature_extraction_new():
     """Extracts features from all stored voice samples."""
