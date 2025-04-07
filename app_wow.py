@@ -159,7 +159,7 @@ def train_model(features_csv):
     # print("Class Mapping:", label_map)
 
     model = RandomForestClassifier(n_estimators=100, random_state=42)
-    # model = KNeighborsClassifier(n_neighbors=5)5
+    # model = KNeighborsClassifier(n_neighbors=5)
     model.fit(X, y)
     modelp = model.predict(X)
     print("Random Forest Accuracy:", accuracy_score(y, modelp))
@@ -177,6 +177,7 @@ def predict(feature_csv):
     
     pdf = df.drop(["Condition", "Label"], axis=1)
     pdf = pdf.dropna()
+    # predict_new = pdf
     predict_new = pdf.mean()
 
     # Convert to DataFrame with proper column name
