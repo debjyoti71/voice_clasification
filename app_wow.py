@@ -62,7 +62,7 @@ def convert_audio_to_text(audio_file):
             return None
 
 
-def extract_formants(file_path):
+def extract_formants(file_path,l):
     # Load the audio file
     def add_noise(y, noise_level=0.02):
         noise = np.random.normal(0, noise_level, y.shape)
@@ -135,7 +135,7 @@ def extract_formants(file_path):
         except:
             features["Mel Spectrogram"] = None
 
-        label = "unknown"  # Extract label from path
+        label = l  # Extract label from path
         features["Label"] = label
         features["Condition"] = condition  # Add error condition
         data.append(features)
@@ -225,7 +225,9 @@ def new_input():
 
     for file in os.listdir(user_dir):
         file_path = os.path.join(user_dir, file)
-        features = extract_formants(file_path)
+        l = os.path.basename(os.path.dirname(file_path))
+        print(l)
+        features = extract_formants(file_path,l)
         all_features.append(features)
 
     new_features_df = pd.DataFrame(all_features)
@@ -241,7 +243,8 @@ def predict_voice():
     sentence = "open the door"
     file_path = "predictvoice.wav"
     record_audio(file_path)
-    feature= extract_formants(file_path)
+    l = "unknown"
+    feature= extract_formants(file_path,l)
     transcribed_text = convert_audio_to_text(file_path)
     print(f"You said: {transcribed_text}")
 
@@ -265,7 +268,10 @@ def feature_extraction_new():
             for file in os.listdir(speaker_path):
                 if file.endswith(".wav"):
                     file_path = os.path.join(speaker_path, file)
-                    features, _ = extract_formants(file_path)
+                    print(file_path)
+                    l = os.path.basename(os.path.dirname(file_path))
+                    print(l)
+                    features = extract_formants(file_path,l)
                     if features:
                         features["Label"] = speaker
                         data.append(features)
